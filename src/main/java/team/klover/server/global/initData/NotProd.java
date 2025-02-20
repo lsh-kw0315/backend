@@ -25,7 +25,7 @@ public class NotProd {
                 //
                 //
                 //
-                apisScheduler.getApisApiData();
+//                apisScheduler.getApisApiData();
             }
         };
     }
