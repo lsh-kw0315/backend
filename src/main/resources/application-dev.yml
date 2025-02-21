@@ -1,8 +1,25 @@
 spring:
-  output:
-    ansi:
-      enabled: always
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/test_db
-    username: root
-    password: root
+    url: jdbc:postgresql://localhost:5432/meta_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true      # SQL 쿼리 로깅 (개발 중에만 true)
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    team.klover: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+
