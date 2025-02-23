@@ -36,6 +36,16 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	implementation("io.jsonwebtoken:jjwt-api:0.12.5")								// jjwt
+	implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
+	implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("com.google.api-client:google-api-client:2.2.0")
+
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+	runtimeOnly("com.h2database:h2")
 }
 
 tasks.withType<Test> {

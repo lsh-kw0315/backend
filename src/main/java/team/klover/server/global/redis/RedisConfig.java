@@ -1,4 +1,4 @@
-package com.ll.server.global.redis;
+package team.klover.server.global.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

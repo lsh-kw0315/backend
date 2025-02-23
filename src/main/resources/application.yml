@@ -1,3 +1,8 @@
 spring:
   application:
     name: server
+  profiles:
+    active:
+      - dev
+    include:
+      - secret

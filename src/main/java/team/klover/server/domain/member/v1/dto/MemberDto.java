@@ -1,7 +1,7 @@
-package com.ll.server.domain.member.dto;
+package team.klover.server.domain.member.v1.dto;
 
-import com.ll.server.domain.member.entity.Member;
 import lombok.*;
+import team.klover.server.domain.member.v1.entity.Member;
 
 @Getter
 @Setter

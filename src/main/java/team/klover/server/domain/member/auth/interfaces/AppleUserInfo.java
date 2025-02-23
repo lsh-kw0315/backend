@@ -1,4 +1,4 @@
-package team.klover.server.domain.auth.interfaces;
+package team.klover.server.domain.member.auth.interfaces;
 
 import lombok.extern.slf4j.Slf4j;
 

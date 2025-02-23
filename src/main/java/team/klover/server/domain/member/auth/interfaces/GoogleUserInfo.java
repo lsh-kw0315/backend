@@ -1,4 +1,4 @@
-package team.klover.server.domain.auth.interfaces;
+package team.klover.server.domain.member.auth.interfaces;
 
 import java.util.Map;
 

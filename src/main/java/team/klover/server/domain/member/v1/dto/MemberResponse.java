@@ -1,4 +1,4 @@
-package com.ll.server.domain.member.dto;
+package team.klover.server.domain.member.v1.dto;
 
 import lombok.Builder;
 import lombok.Getter;

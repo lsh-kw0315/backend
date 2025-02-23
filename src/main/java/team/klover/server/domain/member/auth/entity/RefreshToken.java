@@ -1,4 +1,4 @@
-package team.klover.server.domain.auth.entity;
+package team.klover.server.domain.member.auth.entity;
 
 
 import lombok.Builder;

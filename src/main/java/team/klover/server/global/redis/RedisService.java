@@ -1,4 +1,4 @@
-package com.ll.server.global.redis;
+package team.klover.server.global.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

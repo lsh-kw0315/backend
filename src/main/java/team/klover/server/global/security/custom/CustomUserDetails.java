@@ -1,10 +1,10 @@
-package com.ll.server.global.security.custom;
+package team.klover.server.global.security.custom;
 
-import com.ll.server.domain.member.entity.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import team.klover.server.domain.member.v1.entity.Member;
 
 import java.util.Collection;
 import java.util.Collections;
