@@ -44,10 +44,8 @@ public class MemberV1Controller {
     private final RedisService redisService;
     private final CustomUserDetailsService customUserDetailsService;
 
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    @Value("${web.google.client-id}")
     private String googleClientId;
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-    private String googleClientSecret;
     @Value("${android.google.client-id}")
     private String googleAndroidClientId;
     @Value("${android.line.client-id}")
