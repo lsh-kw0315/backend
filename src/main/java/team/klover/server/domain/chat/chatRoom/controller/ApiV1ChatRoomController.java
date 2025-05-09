@@ -39,10 +39,9 @@ public class ApiV1ChatRoomController {
     // http://localhost:8080/api/v1/chat-room
     @PostMapping
     @Operation(summary = "채팅방 생성(DM/그룹)")
-    public ApiResponse<String> addChatRoom(@RequestBody @Valid ChatRoomForm chatRoomForm){
+    public ChatRoomDto addChatRoom(@RequestBody @Valid ChatRoomForm chatRoomForm){
         Long currentMemberId = AuthUtil.getCurrentMemberId();
-        chatRoomService.addChatRoom(currentMemberId, chatRoomForm);
-        return ApiResponse.of(ReturnCode.SUCCESS);
+        return chatRoomService.addChatRoom(currentMemberId, chatRoomForm);
     }
 
     // 채팅방 이름 수정(그룹) / 참여자권한

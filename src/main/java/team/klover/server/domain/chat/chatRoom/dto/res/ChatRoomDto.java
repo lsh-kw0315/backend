@@ -16,5 +16,6 @@ public class ChatRoomDto {
     private Long memberId;
     private String title;
     private List<MemberInfoDto> chatRoomMembers;
+    private String lastMessage;
     private int memberCount;
 }

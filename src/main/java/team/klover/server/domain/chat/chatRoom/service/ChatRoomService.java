@@ -14,7 +14,7 @@ public interface ChatRoomService {
     Page<ChatRoomDto> findByMemberId(Long currentMemberId, Pageable pageable);
 
     // 채팅방 생성(DM/그룹)
-    void addChatRoom(Long currentMemberId, @Valid ChatRoomForm chatRoomForm);
+    ChatRoomDto addChatRoom(Long currentMemberId, @Valid ChatRoomForm chatRoomForm);
 
     //void addChatRoom(Long currentMemberId, @Valid ChatRoomCreateForm chatRoomCreateForm);
 

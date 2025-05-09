@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import team.klover.server.domain.chat.chatRoom.entity.ChatRoom;
 import team.klover.server.domain.member.v1.entity.Member;
+import team.klover.server.domain.chat.chatRoom.entity.ChatRoomMember;
 
 import java.util.List;
 
@@ -38,14 +39,13 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     JOIN cr.chatRoomMembers crm
     LEFT JOIN ChatMessage cm ON cm.chatRoom = cr
     WHERE crm.member = :member
-    AND (
-        (SELECT COUNT(c) FROM ChatRoomMember c WHERE c.chatRoom = cr) > 2
-        OR (SELECT COUNT(cm2) FROM ChatMessage cm2 WHERE cm2.chatRoom = cr) > 0
-    )
     GROUP BY cr, crm
     ORDER BY COALESCE(MAX(cm.createDate), cr.createDate) DESC
 """)
     Page<ChatRoom> findChatRoomsByMemberOrderByLatestMessage(@Param("member") Member member, Pageable pageable);
 
     List<ChatRoom> findAllByMember(Member member);
+
+    @Query("SELECT crm FROM ChatRoomMember crm JOIN FETCH crm.member WHERE crm.chatRoom.id = :chatRoomId")
+    List<ChatRoomMember> findChatRoomMembersWithMember(@Param("chatRoomId") Long chatRoomId);
 }

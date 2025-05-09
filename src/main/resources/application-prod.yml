@@ -20,18 +20,18 @@ spring:
       uri: mongodb://admin:admin@175.45.192.38:27017/meta_db?authSource=admin
       database: meta_db
   rabbitmq:
-    host: 13.125.235.125
+    host: 13.125.47.222
     port: 5672
     username: admin
     password: admin
   messaging:
     stomp:
       broker-relay:
-        host: 13.125.235.125  # RabbitMQ 서버 IP
+        host: 13.125.47.222  # RabbitMQ 서버 IP
         port: 61613           # STOMP 기본 포트
         system-login: admin   # RabbitMQ 로그인 계정
         system-passcode: admin
-        relay-host: 13.125.235.125
+        relay-host: 13.125.47.222
         relay-port: 61613
         client-login: admin
         client-passcode: admin

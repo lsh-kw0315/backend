@@ -3,13 +3,17 @@ package team.klover.server.domain.chat.chatMessage.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import team.klover.server.domain.chat.chatMessage.entity.ChatMessage;
+import team.klover.server.domain.chat.chatMessage.entity.MessageContent;
 import team.klover.server.domain.chat.chatRoom.entity.ChatRoom;
 import team.klover.server.domain.member.v1.entity.Member;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
@@ -27,4 +31,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findByChatRoomIdAndIdGreaterThan(Long chatRoomId, Long lastReadMessageId);
 
     List<ChatMessage> findAllByMember(Member member);
+
+    // 가장 최근 메시지의 ID를 가져오는 메서드
+    @Query("SELECT cm.id FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId ORDER BY cm.createDate DESC LIMIT 1")
+    Optional<Long> findLatestMessageIdByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 }

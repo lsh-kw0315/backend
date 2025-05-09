@@ -53,7 +53,8 @@ public class ApiV1ChatMessageController {
 
     // 해당 채팅방에서 메시지 생성
     // http://localhost:8080/api/v1/chat-room/message/1
-    @MessageMapping("/{chatRoomId}")
+//    @MessageMapping("/{chatRoomId}") // 웹소켓 사용
+    @PostMapping("/{chatRoomId}")
     public ApiResponse<String> writeChatMessage(@PathVariable("chatRoomId") Long chatRoomId,
                                                 @RequestPart(value ="chatMessageForm" ) ChatMessageForm chatMessageForm,
                                                 @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {

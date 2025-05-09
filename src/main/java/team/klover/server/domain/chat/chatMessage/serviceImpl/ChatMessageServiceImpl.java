@@ -80,47 +80,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         });
     }
 
-    /*
-    @Override
-    @Transactional
-    public Page<ChatMessageDto> findByChatRoomId(Long currentMemberId, LocalDateTime pointTime, Long chatRoomId, Pageable pageable) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new KloverRequestException(ReturnCode.NOT_FOUND_ENTITY));
-        checkPageSize(pageable.getPageSize());
-
-        // 채팅방 참여멤버만 메시지 조회 가능
-        boolean memberExists = chatRoom.getChatRoomMembers().stream()
-                .anyMatch(joinedMember -> joinedMember.getMember().getId().equals(currentMemberId));
-        if (!memberExists) {
-            throw new KloverRequestException(ReturnCode.NOT_AUTHORIZED);
-        }
-        // 해당 채팅방 내의 모든 메시지 읽음 처리 & 해당 채팅방 메시지 가져오기
-        readAllChatMessages(currentMemberId, chatRoom, chatRoomId);
-        Page<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndCreateDateLessThan(chatRoomId,pointTime,pageable);
-        // MongoDB에서 메시지 내용 불러오기
-        List<String> stringMessageIds = chatMessages.stream()
-                .map(chatMessage -> String.valueOf(chatMessage.getId()))
-                .collect(Collectors.toList());
-        Map<Long, String> messageContentMap = messageContentRepository.findByIdIn(stringMessageIds)
-                .stream()
-                .filter(Objects::nonNull) // null 값 필터링
-                .collect(Collectors.toMap(
-                        message -> Long.parseLong(message.getId()),
-                        message -> Objects.requireNonNullElse(message.getContent(), "") // null이면 빈 문자열 처리
-                ));
-
-        Page<ChatMessageDto> origin = chatMessages.map(chatMessage -> {
-            String content = messageContentMap.getOrDefault(chatMessage.getId(), ""); // 없으면 빈 문자열
-            return convertToChatMessageDto(chatMessage, content);
-        });
-
-        List<ChatMessageDto> reversedMessages = new ArrayList<>(origin.getContent());
-        Collections.reverse(reversedMessages); // 메시지 리스트 뒤집기
-
-        return new PageImpl<>(reversedMessages, chatMessages.getPageable(), chatMessages.getTotalElements());
-    }
-
-     */
-
     // 해당 채팅방에서 메시지 검색(닉네임/내용)
     @Override
     @Transactional
