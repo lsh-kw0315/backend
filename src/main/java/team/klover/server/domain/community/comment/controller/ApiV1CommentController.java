@@ -94,4 +94,13 @@ public class ApiV1CommentController {
         commentService.deleteComment(currentMemberId, commentId);
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
+
+    // 해당 댓글 삭제
+    // http://localhost:8080/api/v1/comm-post/comment/1
+    @DeleteMapping("/deleteTest/{commentId}")
+    @Operation(summary = "댓글 삭제")
+    public ApiResponse<String> deleteCommentTest(@PathVariable("commentId") Long commentId){
+        commentService.deleteCommentTest(commentId);
+        return ApiResponse.of(ReturnCode.SUCCESS);
+    }
 }

@@ -124,6 +124,34 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    @Override
+    @Transactional
+    public void updateReviewTest(Long reviewId, @Valid ReviewForm reviewForm){
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() ->
+                new KloverRequestException(ReturnCode.NOT_FOUND_ENTITY));
+
+        // 평점은(1,2,3,4,5)만 가능
+        if (reviewForm.getRating() > 5 || reviewForm.getRating() < 0) {
+            throw new KloverRequestException(ReturnCode.WRONG_PARAMETER);
+        }
+        int prevRating = review.getRating();
+
+        review.setContent(reviewForm.getContent());
+        review.setRating(reviewForm.getRating());
+        reviewRepository.save(review);
+
+        int afterRating = review.getRating();
+        if(prevRating != afterRating){
+            List<ReviewTourPost> rtps =  reviewTourPostRepository.findAllByReview(review);
+
+            for(ReviewTourPost rtp : rtps){
+                TourPost tourPost = rtp.getTourPost();
+                publisher.publishEvent(new TourPostCountEvent(this, tourPost));
+            }
+        }
+    }
+
+
     // 본인 리뷰 삭제
     @Override
     @Transactional
@@ -135,6 +163,30 @@ public class ReviewServiceImpl implements ReviewService {
         if (!review.getMember().getId().equals(currentMemberId)) {
             throw new KloverRequestException(ReturnCode.NOT_AUTHORIZED);
         }
+
+        List<ReviewTourPost> tourPostsPerReview = reviewTourPostRepository.findAllByReview(review);
+        Long commonPlaceId = 0L;
+        if(!tourPostsPerReview.isEmpty()){
+            commonPlaceId = tourPostsPerReview.stream().findFirst().get().getTourPost().getCommonPlaceId();
+        }
+
+        reviewTourPostRepository.deleteByReviewId(reviewId);
+        reviewRepository.delete(review);
+
+        if(commonPlaceId > 0) {
+            //각 언어별 관광 정보에 대한 리뷰 처리 이벤트
+            tourPostsPerReview.forEach(reviewTourPost -> {
+                publisher.publishEvent(new TourPostCountEvent(this, reviewTourPost.getTourPost()));
+            });
+        }
+    }
+
+    // 본인 리뷰 삭제
+    @Override
+    @Transactional
+    public void deleteReviewTest(Long reviewId){
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() ->
+                new KloverRequestException(ReturnCode.NOT_FOUND_ENTITY));
 
         List<ReviewTourPost> tourPostsPerReview = reviewTourPostRepository.findAllByReview(review);
         Long commonPlaceId = 0L;

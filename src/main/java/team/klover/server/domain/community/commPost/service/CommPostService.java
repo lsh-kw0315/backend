@@ -9,6 +9,8 @@ import team.klover.server.domain.community.commPost.dto.req.XYForm;
 import team.klover.server.domain.community.commPost.dto.res.CombinedPostResponse;
 import team.klover.server.domain.community.commPost.dto.res.CommPostDto;
 import team.klover.server.domain.community.commPost.dto.res.DetailCommPostDto;
+import team.klover.server.domain.community.commPost.enums.CommPostSort;
+import team.klover.server.domain.member.v1.enums.Country;
 
 import java.util.List;
 
@@ -40,12 +42,20 @@ public interface CommPostService {
     // 게시글 좋아요 취소
     void deleteCommPostLike(Long currentMemberId, Long commPostId);
 
+
     // 게시글 생성
     CommPostDto addCommPost(Long currentMemberId, @Valid CommPostForm commPostForm, List<MultipartFile> imageFiles);
 
     // 해당 게시글 수정
     void updateCommPost(Long currentMemberId, Long commPostId, @Valid CommPostForm commPostForm, List<MultipartFile> imageFiles);
 
+    // 해당 게시글 수정
+    void updateCommPostTest(Long commPostId, @Valid CommPostForm commPostForm, List<MultipartFile> imageFiles);
+
     // 해당 게시글 삭제
     void deleteCommPost(Long currentMemberId, Long commPostId);
-}
+
+    void deleteCommPostTest(Long commPostId);
+
+     Page<CommPostDto> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort);
+    }

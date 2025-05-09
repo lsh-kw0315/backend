@@ -16,6 +16,10 @@ public interface ReviewService {
     // 본인 리뷰 수정
     void updateReview(Long currentMemberId, Long reviewId, @Valid ReviewForm reviewForm);
 
+    void updateReviewTest(Long reviewId, @Valid ReviewForm reviewForm);
+
     // 본인 리뷰 삭제
     void deleteReview(Long currentMemberId, Long reviewId);
+
+    void deleteReviewTest(Long reviewId);
 }

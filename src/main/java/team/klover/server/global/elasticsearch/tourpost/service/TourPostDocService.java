@@ -68,7 +68,7 @@ public class TourPostDocService {
 
         if(searchByTitle){
             boolQueryBuilder.should(s -> s.matchPhrase(mp -> mp.field("title").query(keyword).boost(30f)));
-            boolQueryBuilder.should(s -> s.match(m -> m.field("title.ngram").query(keyword).boost(1f)));
+            boolQueryBuilder.should(s -> s.match(m -> m.field("title.ngram").query(keyword).boost(0.5f)));
         }
 
         if(searchByOverview){

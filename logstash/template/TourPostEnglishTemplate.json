@@ -5,6 +5,15 @@
   "template": {
     "settings": {
       "index": {
+        "indexing.slowlog.threshold.index.warn": "0ms",
+        "indexing.slowlog.threshold.index.info": "0ms",
+        "indexing.slowlog.threshold.index.debug": "0ms",
+        "indexing.slowlog.threshold.index.trace": "0ms",
+
+        "search.slowlog.threshold.query.warn": "0ms",
+        "search.slowlog.threshold.query.info": "0ms",
+        "search.slowlog.threshold.query.debug": "0ms",
+        "search.slowlog.threshold.query.trace": "0ms",
         "max_ngram_diff": 10
       },
       "analysis": {
@@ -59,14 +68,14 @@
           },
           "normal_analyzer": {
             "type": "custom",
-            "tokenizer": "fixed_length_tokenizer",
+            "tokenizer": "standard",
             "char_filter": [
-              "remove_korean",
-              "remove_symbols"
+              "remove_korean"
             ],
             "filter": [
               "lowercase",
-              "asciifolding"
+              "asciifolding",
+              "fixed_length_filter"
             ]
           }
         },
@@ -79,6 +88,11 @@
           "my_word_delimiter_graph": {
             "type": "word_delimiter_graph",
             "preserve_original": true
+          },
+          "fixed_length_filter": {
+            "type": "pattern_capture",
+            "patterns": ["(.{1,3})"],
+            "preserve_original": false
           }
         }
       }

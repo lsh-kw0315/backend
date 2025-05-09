@@ -124,4 +124,40 @@ public class ApiV1TourPostController {
         Page<TourPostDto> list = tourPostDocService.search(keyword,pageable,mapX,mapY,language,area,contentType,hasExotic,hasHealing,hasTraditional,hasActive,searchByTitle,searchByOverview,sort);
         return ApiResponse.of(KloverPage.of(list));
     }
+
+    // http://localhost:8080/api/v1/tour-post/searchDsl
+    @GetMapping("/searchDsl")
+    public ApiResponse<TourPostDto> searchDsl(@RequestParam(value = "page",defaultValue = "0") int page,
+                                              @RequestParam(value = "size",defaultValue = "20") int size,
+                                              @RequestParam(value = "keyword",defaultValue = "")String keyword,
+                                              @RequestParam(value = "sort", required = false) TourPostSort sort,
+                                              @RequestParam(value = "language") Country language,
+                                              @RequestParam(value = "area",required = false) Area area,
+                                              @RequestParam(value = "contenttype",required = false) ContentType contentType,
+                                              @RequestParam(value = "title", defaultValue = "false") boolean searchByTitle,
+                                              @RequestParam(value = "overview", defaultValue = "false") boolean searchByOverview,
+                                              @RequestParam(value = "exotic", defaultValue = "false") boolean hasExotic,
+                                              @RequestParam(value = "healing", defaultValue = "false") boolean hasHealing,
+                                              @RequestParam(value = "active", defaultValue = "false") boolean hasActive,
+                                              @RequestParam(value = "traditional", defaultValue = "false") boolean hasTraditional,
+                                              @RequestParam(value = "mapX", required = false) Double mapX,
+                                              @RequestParam(value = "mapY", required = false) Double mapY){
+        System.out.println("메서드에 진입");
+        if(page<0 || size<=0) {
+            throw new KloverRequestException(ReturnCode.WRONG_PARAMETER);
+        }
+
+        if(sort!=null && sort.equals(TourPostSort.DISTANCE) && (mapX == null || mapY == null)){
+            throw new KloverRequestException(ReturnCode.WRONG_PARAMETER);
+        }
+
+        //둘 중 하나라도 true가 아니고 keyword가 안 비었다면
+        if(!(searchByTitle || searchByOverview) && keyword !=null && !keyword.isBlank()) searchByTitle = true;
+
+        Pageable pageable = PageRequest.of(page,size);
+        Page<TourPostDto> list = tourPostService.search(keyword,pageable,mapX,mapY,language,area,contentType,hasExotic,hasHealing,hasTraditional,hasActive,searchByTitle,searchByOverview,sort);
+        return ApiResponse.of(KloverPage.of(list));
+    }
+
+
 }

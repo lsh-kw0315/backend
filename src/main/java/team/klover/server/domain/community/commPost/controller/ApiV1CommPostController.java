@@ -111,6 +111,7 @@ public class ApiV1CommPostController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
+
     // 게시글 좋아요 취소
     // http://localhost:8080/api/v1/comm-post/like/1
     @DeleteMapping("/like/{commPostId}")
@@ -120,6 +121,7 @@ public class ApiV1CommPostController {
         commPostService.deleteCommPostLike(currentMemberId, commPostId);
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
+
 
     // 게시글 생성
     // http://localhost:8080/api/v1/comm-post
@@ -144,6 +146,17 @@ public class ApiV1CommPostController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
+    // 해당 게시글 수정
+    // http://localhost:8080/api/v1/comm-post/1
+    @PutMapping("/updateTest/{commPostId}")
+    @Operation(summary = "게시글 수정")
+    public ApiResponse updateCommPostTest(@PathVariable("commPostId") Long commPostId,
+                                      @RequestPart(value = "commPostForm") @Valid CommPostForm commPostForm,
+                                      @RequestPart(value = "imageFile", required = false) List<MultipartFile> imageFiles) {
+        commPostService.updateCommPostTest(commPostId, commPostForm, imageFiles);
+        return ApiResponse.of(ReturnCode.SUCCESS);
+    }
+
     // 해당 게시글 삭제
     // http://localhost:8080/api/v1/comm-post/1
     @DeleteMapping("/{commPostId}")
@@ -151,6 +164,15 @@ public class ApiV1CommPostController {
     public ApiResponse<String> deleteCommPost(@PathVariable("commPostId") Long commPostId) {
         Long currentMemberId = AuthUtil.getCurrentMemberId();
         commPostService.deleteCommPost(currentMemberId, commPostId);
+        return ApiResponse.of(ReturnCode.SUCCESS);
+    }
+
+    // 해당 게시글 삭제
+    // http://localhost:8080/api/v1/comm-post/1
+    @DeleteMapping("/deleteTest/{commPostId}")
+    @Operation(summary = "게시글 삭제")
+    public ApiResponse<String> deleteCommPostTest(@PathVariable("commPostId") Long commPostId) {
+        commPostService.deleteCommPostTest(commPostId);
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
@@ -179,6 +201,35 @@ public class ApiV1CommPostController {
         if(!(searchByContent || searchByNickname) && keyword !=null && !keyword.isBlank()) searchByContent = true;
 
         Page<CommPostDto> list = commPostDocService.search(keyword,pageable,mapX,mapY,language,searchByContent,searchByNickname,sort);
+        KloverPage<CommPostDto> kloverPage = KloverPage.of(list);
+        return ApiResponse.of(kloverPage);
+    }
+
+    //http://localhost:8080/api/v1/comm-post/search
+    @GetMapping("/searchQueryDsl")
+    @Operation(summary = "게시글 검색(쿼리DSL)")
+    public ApiResponse<CommPostDto> searchQueryDsl(@RequestParam(value = "page",defaultValue = "0") int page,
+                                           @RequestParam(value = "size",defaultValue = "20") int size,
+                                           @RequestParam(value = "keyword",defaultValue = "")String keyword,
+                                           @RequestParam(value = "sort", required = false)CommPostSort sort,
+                                           @RequestParam(value = "language")Country language,
+                                           @RequestParam(value = "content", defaultValue = "false") boolean searchByContent,
+                                           @RequestParam(value = "nickname", defaultValue = "false") boolean searchByNickname,
+                                           @RequestParam(value = "mapX", required = false) Double mapX,
+                                           @RequestParam(value = "mapY", required = false) Double mapY){
+        if(page < 0 || size <= 0){
+            throw new KloverRequestException(ReturnCode.WRONG_PARAMETER);
+        }
+
+        if(sort!=null && sort.equals(CommPostSort.DISTANCE) && (mapX ==null || mapY==null)){
+            throw new KloverRequestException(ReturnCode.WRONG_PARAMETER);
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        //둘 중 하나라도 true가 아니고 keyword가 안 비었다면
+        if(!(searchByContent || searchByNickname) && keyword !=null && !keyword.isBlank()) searchByContent = true;
+
+        Page<CommPostDto> list = commPostService.search(keyword,pageable,mapX,mapY,language,searchByContent,searchByNickname,sort);
         KloverPage<CommPostDto> kloverPage = KloverPage.of(list);
         return ApiResponse.of(kloverPage);
     }

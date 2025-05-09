@@ -16,4 +16,4 @@ spring:
       max-file-size: 10MB
       max-request-size: 42MB
 aws:
-  bucket_name: klover-bucket-jun2-1
+  bucket_name: klover-bucket-lshkw0315-1

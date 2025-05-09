@@ -15,6 +15,7 @@ import team.klover.server.domain.community.commPost.dto.res.CombinedPostResponse
 import team.klover.server.domain.community.commPost.dto.res.CommPostDto;
 import team.klover.server.domain.community.commPost.dto.res.DetailCommPostDto;
 import team.klover.server.domain.community.commPost.entity.*;
+import team.klover.server.domain.community.commPost.enums.CommPostSort;
 import team.klover.server.domain.community.commPost.event.CommPostLikedEvent;
 import team.klover.server.domain.community.commPost.repository.CommPostLikeRepository;
 import team.klover.server.domain.community.commPost.repository.CommPostRepository;
@@ -157,6 +158,7 @@ public class CommPostServiceImpl implements CommPostService {
         publisher.publishEvent(new CommPostCountEvent(this, commPost));
     }
 
+
     // 게시글 좋아요 취소
     @Override
     @Transactional
@@ -172,6 +174,7 @@ public class CommPostServiceImpl implements CommPostService {
 
         publisher.publishEvent(new CommPostCountEvent(this, commPost ));
     }
+
 
     // 게시글 생성
     @Override
@@ -249,6 +252,40 @@ public class CommPostServiceImpl implements CommPostService {
 
     }
 
+    // 해당 게시글 수정
+    @Transactional
+    public void updateCommPostTest(Long commPostId, @Valid CommPostForm commPostForm, List<MultipartFile> imageFiles){
+        CommPost commPost = commPostRepository.findById(commPostId)
+                .orElseThrow(() -> new KloverRequestException(ReturnCode.NOT_FOUND_ENTITY));
+
+        // 기존 이미지들 삭제 후 입력 받은 이미지들 S3에 저장
+        List<String> imageUrls = new ArrayList<>();
+        if(imageFiles != null && !imageFiles.isEmpty()) {
+            s3Service.deleteAllFile(commPost.getImageUrls());
+            imageUrls = new ArrayList<>();
+            for (MultipartFile imageFile : imageFiles) {
+                try {
+                    String imageUrl = s3Service.uploadFile(imageFile, "commPost-images");
+                    imageUrls.add(imageUrl);
+                } catch (IOException e) {
+                    throw new KloverRequestException(ReturnCode.INTERNAL_ERROR);
+                }
+            }
+        }
+
+        commPost.setMapX(commPostForm.getMapX());
+        commPost.setMapY(commPostForm.getMapY());
+        commPost.setContent(commPostForm.getContent());
+        if(!imageUrls.isEmpty()) {
+            commPost.setImageUrls(imageUrls);
+        }
+        //language는 작성 당시의 language만을 따라갑니다.
+        commPostRepository.save(commPost);
+
+        //게시글 수정 이벤트
+        publisher.publishEvent(new CommPostUpdateEvent(this,commPost));
+    }
+
     // 해당 게시글 삭제
     @Override
     @Transactional
@@ -261,6 +298,19 @@ public class CommPostServiceImpl implements CommPostService {
         if (!commPost.getMember().getId().equals(member.getId())) {
             throw new KloverRequestException(ReturnCode.NOT_AUTHORIZED);
         }
+        commentService.deleteAllComments(commPostId);
+        s3Service.deleteAllFile(commPost.getImageUrls());
+        commPostRepository.delete(commPost);
+
+        //커뮤니티 게시글 삭제 이벤트
+        publisher.publishEvent(new CommPostDeleteEvent(this, commPost));
+    }
+
+    @Transactional
+    public void deleteCommPostTest(Long commPostId){
+        CommPost commPost = commPostRepository.findById(commPostId)
+                .orElseThrow(() -> new KloverRequestException(ReturnCode.NOT_FOUND_ENTITY));
+
         commentService.deleteAllComments(commPostId);
         s3Service.deleteAllFile(commPost.getImageUrls());
         commPostRepository.delete(commPost);
@@ -311,5 +361,11 @@ public class CommPostServiceImpl implements CommPostService {
                 .imageUrls(commPost.getImageUrls())
                 .createDate(commPost.getCreateDate())
                 .build();
+    }
+
+    public Page<CommPostDto> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort){
+        checkPageSize(pageable.getPageSize());
+        return commPostRepository.search(keyword, pageable, mapX, mapY, language, searchByContent, searchByNickname, sort)
+                .map(this::convertToCommPostDto);
     }
 }

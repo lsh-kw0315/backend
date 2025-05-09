@@ -59,10 +59,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         // 인증이 필요 없는 URL 리스트
-        boolean isPublicApi =
-                 (path.startsWith("/api/v1/comm-post") && method.equals("GET"))
-                || (path.startsWith("/api/v1/tour-post") && method.equals("GET"));
-
+        boolean isPublicApi = (path.startsWith("/api/v1/comm-post") && method.equals("GET")) || (path.startsWith("/api/v1/tour-post") && method.equals("GET"));
         if (!isPublicApi && !StringUtils.hasText(token)) {
             log.warn("JWT 토큰이 없습니다.");
 

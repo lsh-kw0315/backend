@@ -13,7 +13,7 @@ import team.klover.server.domain.member.v1.entity.Member;
 import java.util.List;
 
 @Repository
-public interface CommPostRepository extends JpaRepository<CommPost, Long> {
+public interface CommPostRepository extends JpaRepository<CommPost, Long>, CommPostRepositoryCustom {
     // 사용자 위치 주변 게시글(관광지&사용자) 조회
     @Query(value = """
         SELECT * FROM comm_post

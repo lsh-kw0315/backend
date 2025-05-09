@@ -3,6 +3,15 @@
   "template": {
     "settings": {
       "index" : {
+        "indexing.slowlog.threshold.index.warn": "0ms",
+        "indexing.slowlog.threshold.index.info": "0ms",
+        "indexing.slowlog.threshold.index.debug": "0ms",
+        "indexing.slowlog.threshold.index.trace": "0ms",
+
+        "search.slowlog.threshold.query.warn": "0ms",
+        "search.slowlog.threshold.query.info": "0ms",
+        "search.slowlog.threshold.query.debug": "0ms",
+        "search.slowlog.threshold.query.trace": "0ms",
         "max_ngram_diff": 10
       },
       "analysis": {
@@ -33,10 +42,9 @@
           },
           "chs_word_search_analyzer": {
             "type": "custom",
-            "tokenizer": "keyword",
+            "tokenizer": "ik_smart",
             "char_filter": [
-              "remove_korean",
-              "remove_symbols"
+              "remove_korean"
             ],
             "filter": [
                 "cjk_width",

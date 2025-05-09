@@ -46,10 +46,11 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
     volumes:
-      - ./logstash/analyzer:/downloads
-      - ./logstash/dict/result.txt:/usr/share/elasticsearch/config/userdict_ja.txt
+      - ./elasticsearch/analyzer:/downloads
+      - ./elasticsearch/userdict_ja.txt:/usr/share/elasticsearch/config/userdict_ja.txt
+      - ./elasticsearch/logs:/usr/share/elasticsearch/logs
+      - ./elasticsearch/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
     ports:
-      #      - "7700:7700"
       - "9200:9200"
     networks:
       - elastic

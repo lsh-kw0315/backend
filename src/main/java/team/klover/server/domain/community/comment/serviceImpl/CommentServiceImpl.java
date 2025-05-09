@@ -138,6 +138,18 @@ public class CommentServiceImpl implements CommentService {
         publisher.publishEvent(new CommPostCountEvent(this, comment.getCommPost()));
     }
 
+    @Transactional
+    public void deleteCommentTest(Long commentId){
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new KloverRequestException(ReturnCode.NOT_FOUND_ENTITY));
+
+        deleteChildComments(commentId);
+        commentRepository.save(comment); // 답글 삭제 후 더티 체킹
+        commentRepository.delete(comment);
+
+        //댓글 삭제 이벤트(갯수 정산은 삭제 종료 후 발생해도 되므로)
+        publisher.publishEvent(new CommPostCountEvent(this, comment.getCommPost()));
+    }
+
     // 해당 게시글의 모든 댓글 삭제
     @Override
     @Transactional

@@ -164,7 +164,7 @@ public class MemberV1Service {
 
         //댓글 처리
         List<CommentLike> commentLikes = commentLikeRepository.findAllByMember(member);
-        commentLikes.forEach(commentLike -> commentService.deleteCommentLike(memberId,commentLike.getId()));
+        commentLikes.forEach(commentLike -> commentService.deleteCommentLike(memberId,commentLike.getComment().getId()));
 
         List<Comment> comments = commentRepository.findAllByMember(member);
         List<Long> commentsId = comments.stream().map(BaseEntity::getId).toList();

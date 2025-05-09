@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.klover.server.domain.community.commPost.dto.req.XYForm;
 import team.klover.server.domain.member.v1.entity.Member;
+import team.klover.server.domain.member.v1.enums.Country;
 import team.klover.server.domain.member.v1.repository.MemberV1Repository;
+import team.klover.server.domain.tour.enums.Area;
+import team.klover.server.domain.tour.enums.ContentType;
+import team.klover.server.domain.tour.enums.TourPostSort;
 import team.klover.server.domain.tour.review.repository.ReviewRepository;
 import team.klover.server.domain.tour.tourPost.dto.res.DetailTourPostDto;
 import team.klover.server.domain.tour.tourPost.dto.res.TourPostDto;
@@ -154,5 +158,9 @@ public class TourPostServiceImpl implements TourPostService {
                 .reviewCount(reviewCount)
                 .isSaved(isSaved)
                 .build();
+    }
+
+    public Page<TourPostDto> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, Area area, ContentType contentType, boolean hasExotic, boolean hasHealing, boolean hasTraditional, boolean hasActive, boolean searchByTitle, boolean searchByOverview, TourPostSort sort) {
+        return tourPostRepository.search(keyword, pageable, mapX, mapY, language, area, contentType, hasExotic, hasHealing, hasTraditional, hasActive, searchByTitle, searchByOverview, sort);
     }
 }

@@ -1,10 +1,7 @@
 package team.klover.server.domain.chat.chatRoom.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import team.klover.server.domain.member.v1.entity.Member;
 import team.klover.server.global.jpa.BaseEntity;
@@ -28,5 +25,6 @@ public class ChatRoom extends BaseEntity {
     private Member member;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 }

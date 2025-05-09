@@ -3,6 +3,15 @@
   "template": {
     "settings": {
       "index" : {
+        "indexing.slowlog.threshold.index.warn": "0ms",
+        "indexing.slowlog.threshold.index.info": "0ms",
+        "indexing.slowlog.threshold.index.debug": "0ms",
+        "indexing.slowlog.threshold.index.trace": "0ms",
+
+        "search.slowlog.threshold.query.warn": "0ms",
+        "search.slowlog.threshold.query.info": "0ms",
+        "search.slowlog.threshold.query.debug": "0ms",
+        "search.slowlog.threshold.query.trace": "0ms",
         "max_ngram_diff": 10
       },
       "analysis": {
@@ -23,13 +32,18 @@
             "type": "kuromoji_tokenizer",
             "mode": "search",
             "user_dictionary": "userdict_ja.txt",
-            "discard_compound_token": false
+            "discard_compound_token": true
           },
           "kuromoji_word_tokenizer": {
             "type": "kuromoji_tokenizer",
             "mode": "search",
             "user_dictionary": "userdict_ja.txt",
-            "discard_compound_token": false
+            "discard_compound_token": true
+          },
+          "kuromoji_test_tokenizer": {
+            "type": "kuromoji_tokenizer",
+            "mode": "extended",
+            "discard_compound_token": true
           }
         },
         "analyzer": {
@@ -88,6 +102,24 @@
               "big_ngram",
               "unique"
             ]
+          },
+          "japanese_word_katakana_search": {
+            "type": "custom",
+            "tokenizer": "kuromoji_test_tokenizer",
+            "char_filter": [
+              "remove_korean"
+            ],
+            "filter": [
+              "cjk_width",
+              "kuromoji_number",
+              "kuromoji_stoptags",
+              "katakana_filter",
+              "post_symbols_filter",
+              "asciifolding",
+              "lowercase",
+              "big_ngram",
+              "unique"
+            ]
           }
         },
         "filter": {
@@ -117,6 +149,11 @@
             "type": "pattern_replace",
             "pattern": "[\\p{P}\\p{S}\\s]",
             "replacement": ""
+          },
+          "fixed_length_filter": {
+            "type": "pattern_capture",
+            "patterns": ["(.{1,1})"],
+            "preserve_original": false
           }
         }
       }
@@ -142,6 +179,10 @@
             "ngram": {
               "type": "text",
               "analyzer": "japanese_word_romaji_search"
+            },
+            "kata": {
+              "type": "text",
+              "analyzer": "japanese_word_katakana_search"
             }
           }
         },

@@ -1,5 +1,6 @@
 package team.klover.server.domain.tour.tourPost.dto.res;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 import team.klover.server.global.elasticsearch.tourpost.doc.TourPostDoc;
 

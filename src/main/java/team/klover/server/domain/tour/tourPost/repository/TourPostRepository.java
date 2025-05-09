@@ -13,7 +13,7 @@ import team.klover.server.domain.tour.tourPost.entity.TourPost;
 import java.util.List;
 
 @Repository
-public interface TourPostRepository extends JpaRepository<TourPost, Long> {
+public interface TourPostRepository extends JpaRepository<TourPost, Long>, TourPostRepositoryCustom {
     // 저장된 Apis 데이터에서 선별
     void deleteByCat3NotIn(List<String> cat3List);
 

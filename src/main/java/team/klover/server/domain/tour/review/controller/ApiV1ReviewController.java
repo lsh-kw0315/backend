@@ -65,6 +65,15 @@ public class ApiV1ReviewController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
+    // 본인 리뷰 수정
+    // http://localhost:8080/api/v1/tour-post/review/1
+    @PutMapping("/updateTest/{reviewId}")
+    @Operation(summary="본인 리뷰 수정")
+    public ApiResponse<String> updateReviewTest(@PathVariable("reviewId") Long reviewId, @RequestBody @Valid ReviewForm reviewForm) {
+        reviewService.updateReviewTest(reviewId, reviewForm);
+        return ApiResponse.of(ReturnCode.SUCCESS);
+    }
+
     // 본인 리뷰 삭제
     // http://localhost:8080/api/v1/tour-post/review/1
     @DeleteMapping("/{reviewId}")
@@ -72,6 +81,15 @@ public class ApiV1ReviewController {
     public ApiResponse<String> deleteReview(@PathVariable("reviewId") Long reviewId) {
         Long currentMemberId = AuthUtil.getCurrentMemberId();
         reviewService.deleteReview(currentMemberId, reviewId);
+        return ApiResponse.of(ReturnCode.SUCCESS);
+    }
+
+    // 본인 리뷰 삭제
+    // http://localhost:8080/api/v1/tour-post/review/1
+    @DeleteMapping("/deleteTest/{reviewId}")
+    @Operation(summary="본인 리뷰 삭제")
+    public ApiResponse<String> deleteReviewTest(@PathVariable("reviewId") Long reviewId) {
+        reviewService.deleteReviewTest(reviewId);
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 }

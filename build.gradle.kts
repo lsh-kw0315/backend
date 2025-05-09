@@ -6,6 +6,7 @@ plugins {
 
 group = "team.klover"
 version = "0.0.1-SNAPSHOT"
+val queryDslVersion = "5.0.0" // QueryDSL Version Setting
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_21 // 빌드 자바 버전
@@ -81,6 +82,13 @@ dependencies {
 	implementation("com.google.firebase:firebase-admin:9.4.3")
 
 	implementation("org.redisson:redisson-spring-boot-starter:3.44.0")
+
+	// QueryDSL Implementation
+	implementation ("com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta")
+	annotationProcessor("com.querydsl:querydsl-apt:${queryDslVersion}:jakarta")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+
 }
 
 tasks.withType<Test> {
