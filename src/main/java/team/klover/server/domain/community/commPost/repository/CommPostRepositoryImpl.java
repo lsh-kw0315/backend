@@ -16,6 +16,7 @@ import team.klover.server.domain.community.commPost.entity.QCommPost;
 import team.klover.server.domain.community.commPost.entity.QCommPostLike;
 import team.klover.server.domain.community.commPost.enums.CommPostSort;
 import team.klover.server.domain.community.comment.entity.QComment;
+import team.klover.server.domain.member.v1.entity.QMember;
 import team.klover.server.domain.member.v1.enums.Country;
 import team.klover.server.domain.tour.tourPost.dto.res.TourPostDto;
 
@@ -34,6 +35,7 @@ public class CommPostRepositoryImpl implements CommPostRepositoryCustom {
         QCommPost commPost = QCommPost.commPost;
         QCommPostLike commPostLike = QCommPostLike.commPostLike;
         QComment comment = QComment.comment;
+        QMember member = QMember.member;
 
         NumberExpression<Double> distance = null;
 
@@ -59,16 +61,17 @@ public class CommPostRepositoryImpl implements CommPostRepositoryCustom {
                     );
 
             query = queryFactory
-                    .selectFrom(commPost)
-                    .leftJoin(commPostLike).on(commPostLike.commPost.id.eq(commPost.id))
-                    .leftJoin(comment).on(comment.commPost.id.eq(commPost.id))
-                    .fetchJoin()
+                    .select(commPost)
+                    .from(commPost)
+                    .leftJoin(commPostLike).on(commPostLike.commPost.eq(commPost))
+                    .leftJoin(comment).on(comment.commPost.eq(commPost))
+                    .leftJoin(commPost.member, member).fetchJoin()
                     .where(
                             contentLike(keyword, searchByContent),
                             nicknameLike(keyword, searchByNickname),
                             commPost.language.eq(language)
                     )
-                    .groupBy(commPost.id);
+                    .groupBy(commPost.id, member.id);
 
             if (sort != null) {
                 switch (sort) {
@@ -106,17 +109,18 @@ public class CommPostRepositoryImpl implements CommPostRepositoryCustom {
                     );
 
             query = queryFactory
-                    .selectFrom(commPost)
-                    .leftJoin(commPostLike).on(commPostLike.commPost.id.eq(commPost.id))
-                    .leftJoin(comment).on(comment.commPost.id.eq(commPost.id))
-                    .fetchJoin()
+                    .select(commPost)
+                    .from(commPost)
+                    .leftJoin(commPostLike).on(commPostLike.commPost.eq(commPost))
+                    .leftJoin(comment).on(comment.commPost.eq(commPost))
+                    .leftJoin(commPost.member, member).fetchJoin()
                     .where(
                             commPost.id.in(ids),
                             commPost.language.eq(language),
                             contentLike(keyword, searchByContent),
                             nicknameLike(keyword, searchByNickname)
                     )
-                    .groupBy(commPost.id);
+                    .groupBy(commPost.id, member.id);
 
             if (sort != null) {
                 switch (sort) {
