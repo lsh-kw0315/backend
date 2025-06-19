@@ -3,10 +3,10 @@
 
 ## 👨‍👨‍👧‍👦 팀원 소개
 
-| <img src='https://github.com/sky0427.png' width=120> | <img src='https://github.com/suuny0321.png' width=120> | <img src='https://github.com/Asthux.png' width=120> | <img src='https://github.com/koothemaverick.png' width=120> | <img src='https://github.com/LSH-kw0315.png' width=120> |
+| <img src='https://github.com/sky0427.png' width=120> | <img src='https://github.com/suuny0321.png' width=120> | <img src='https://github.com/Asthux.png' width=120> | <img src='https://github.com/Koojunhui.png' width=120> | <img src='https://github.com/LSH-kw0315.png' width=120> |
 | :-: | :-: | :-: | :-: | :-: |
 | 윤수근 | 주선경 | 오상민 | 구준휘 | 이승헌 |
-| [GitHub](https://github.com/sky0427) | [GitHub](https://github.com/suuny0321) | [GitHub](https://github.com/Asthux) | [GitHub](https://github.com/koothemaverick) | [GitHub](https://github.com/LSH-kw0315) | 
+| [GitHub](https://github.com/sky0427) | [GitHub](https://github.com/suuny0321) | [GitHub](https://github.com/Asthux) | [GitHub](https://github.com/Koojunhui) | [GitHub](https://github.com/LSH-kw0315) | 
 
 <br>
 <br>
