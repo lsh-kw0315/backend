@@ -45,7 +45,7 @@ public class TourPostDocService {
         if(sort!=null && sort.equals(TourPostSort.DISTANCE)){
             boolQueryBuilder.filter(f->f.geoDistance(gd -> gd.distance(RADIUS+"km")
                     .field("location")
-                    .distanceType(GeoDistanceType.Plane)
+                    .distanceType(GeoDistanceType.Arc)
                     .location(loc -> loc.latlon(l->l.lat(mapY).lon(mapX)))));
 
             GeoDistanceSort geoDistanceSort =

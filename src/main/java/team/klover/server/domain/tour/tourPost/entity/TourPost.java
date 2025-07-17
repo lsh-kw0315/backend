@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import team.klover.server.domain.tour.review.entity.ReviewTourPost;
@@ -58,4 +60,10 @@ public class TourPost {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createDate;
+
+    @Column(columnDefinition = "geography(POINT, 4326)", name="location_earth")
+    private Geometry locationEarth;
+
+    @Column(columnDefinition = "earth", name="loc_earth")
+    private Geometry locEarth;
 }

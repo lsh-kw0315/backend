@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.jooq.DSLContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -29,9 +30,13 @@ import static team.klover.server.domain.community.commPost.enums.CommPostSort.LI
 public class CommPostRepositoryImpl implements CommPostRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
+    private final DSLContext dslContext;
 
     @Override
     public Page<CommPost> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort) {
+
+
+        /*
         QCommPost commPost = QCommPost.commPost;
         QCommPostLike commPostLike = QCommPostLike.commPostLike;
         QComment comment = QComment.comment;
@@ -146,10 +151,13 @@ public class CommPostRepositoryImpl implements CommPostRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
         return PageableExecutionUtils.getPage(
                 pageContent, pageable, count::fetchOne
         );
+
+         */
+
+        return null;
     }
 
 

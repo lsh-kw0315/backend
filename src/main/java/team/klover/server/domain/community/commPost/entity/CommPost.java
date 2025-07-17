@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Type;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 import team.klover.server.domain.community.comment.entity.Comment;
 import team.klover.server.domain.member.v1.entity.Member;
 import team.klover.server.domain.member.v1.enums.Country;
@@ -48,4 +50,9 @@ public class CommPost extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Country language;
 
+    @Column(columnDefinition = "geography(POINT, 4326)", name="location_earth")
+    private Geometry locationEarth;
+
+    @Column(columnDefinition = "earth", name="loc_earth")
+    private Geometry locEarth;
 }
