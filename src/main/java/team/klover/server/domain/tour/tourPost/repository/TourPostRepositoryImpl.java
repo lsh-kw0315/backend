@@ -12,10 +12,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.jooq.Condition;
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.SortField;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.locationtech.jts.geom.Coordinate;
@@ -110,7 +107,7 @@ public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
         Review rv = Review.REVIEW.as("rv");
         ReviewTourPost rtp = ReviewTourPost.REVIEW_TOUR_POST.as("rtp");
 
-        List<SortField> order = new ArrayList<>();
+        List<OrderField<?>> order = new ArrayList<>();
         order.add(tp.CONTENT_ID.desc());
         order.add(tp.CREATE_DATE.desc());
         if (sort != null) {
@@ -153,7 +150,7 @@ public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
                     conditions
                 ).groupBy(tp.COMMON_PLACE_ID, tp.CONTENT_ID)
                 .orderBy(
-                        order.toArray(new SortField[0])
+                        order
                 ).offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .stream().map(row ->

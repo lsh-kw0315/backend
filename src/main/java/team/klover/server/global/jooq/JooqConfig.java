@@ -1,8 +1,6 @@
 package team.klover.server.global.jooq;
 
 
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
-import org.geolatte.geom.M;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DefaultDSLContext;
@@ -11,7 +9,6 @@ import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.jooq.RecordValueReader;
 import org.modelmapper.module.jdk8.Jdk8Module;
 import org.modelmapper.module.jsr310.Jsr310Module;
-import org.modelmapper.spi.NameTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,8 +25,13 @@ public class JooqConfig {
     public ModelMapper modelMapper(){
         ModelMapper mapper = new ModelMapper();
 
+        mapper.registerModule(new Jsr310Module());
+        mapper.registerModule(new Jdk8Module());
+
         mapper.getConfiguration()
+                .addValueReader(new RecordValueReader())
                 .setSourceNameTokenizer(NameTokenizers.UNDERSCORE);
+
 
         return mapper;
     }
