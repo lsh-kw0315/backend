@@ -36,6 +36,9 @@ import team.klover.server.domain.tour.tourPost.dto.res.TourPostDto;
 import team.klover.server.domain.tour.tourPost.entity.QTourPost;
 import team.klover.server.global.common.constant.SearchConstant;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,20 +110,25 @@ public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
         Review rv = Review.REVIEW.as("rv");
         ReviewTourPost rtp = ReviewTourPost.REVIEW_TOUR_POST.as("rtp");
 
-        List<OrderField<?>> order = new ArrayList<>();
-        order.add(tp.CONTENT_ID.desc());
-        order.add(tp.CREATE_DATE.desc());
-        if (sort != null) {
-            switch (sort) {
-                case DISTANCE -> order.add(DSL.field(
-                        "CAST(ST_SetSRID(ST_MakePoint({0}, {1}), 4326) AS geography) <-> location_earth",
-                        mapX, mapY
-                ).asc());
-                case RATING_AVERAGE -> order.add(DSL.avg(rv.RATING).asc());
-                case REVIEW_COUNT -> order.add(DSL.count(rv).desc());
+        List<OrderField<?>> orderList = new ArrayList<>();
+        switch (sort){
+            case RATING_AVERAGE -> {
+                orderList.add(DSL.field("avg_rating", SQLDataType.DOUBLE).desc());
+            }
+            case REVIEW_COUNT -> {
+                orderList.add(DSL.field("review_count", SQLDataType.BIGINT).desc());
+            }
+            case DISTANCE -> {
+                if(mapX != null && mapY != null) {
+                    orderList.add(DSL.field(
+                            "CAST(ST_SetSRID(ST_MakePoint({0}, {1}), 4326) AS geography) <-> location_earth",
+                            mapX, mapY
+                    ).asc());
+                }
             }
         }
-
+        orderList.add(tp.CONTENT_ID.desc());
+        orderList.add(tp.CREATE_DATE.desc());
 
         List<Condition> conditions = new ArrayList<>();
         conditions.add(tp.LANGUAGE.eq(language.name()));
@@ -129,46 +137,77 @@ public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
         if (searchByTitle) conditions.add(tp.TITLE.containsIgnoreCase(keyword));
         if (searchByOverview) conditions.add(tp.OVERVIEW.containsIgnoreCase(keyword));
         if (areaCode != null) conditions.add(tp.AREA_CODE.eq(areaCode));
-        if (sort == TourPostSort.DISTANCE)
+        if (mapX != null && mapY != null)
             conditions.add(DSL.condition("ST_DWithin(ST_SetSRID(ST_MakePoint({0}, {1}), 4326)::geography, tp.location_earth, 5000)", mapX, mapY));
 
-        List<TourPostDto> contents=
-        dslContext.select(
-                tp.CONTENT_ID.as("contentId"),
-                tp.COMMON_PLACE_ID.as("commonPlaceId"),
-                DSL.avg(rv.RATING).as("avgRating"),
-                DSL.count(rv).as("reviewCount"),
+        Table<Record9<Long, Long, String, String, String, Double, Double, LocalDateTime, Object>> filteredTourPost =
+                 dslContext.select(
+                        tp.CONTENT_ID.as("content_id"),
+                        tp.COMMON_PLACE_ID.as("common_place_id"),
                         tp.TITLE.as("title"),
-                tp.ADDR1.as("addr1"),
-                tp.FIRST_IMAGE.as("firstImage"),
-                tp.MAPX.as("mapX"),
-                tp.MAPY.as("mapY"))
-                .from(tp)
-                .leftJoin(rtp).on(tp.CONTENT_ID.eq(rtp.TOUR_POST_ID))
-                .leftJoin(rv).on(rtp.REVIEW_ID.eq(rv.ID))
-                .where(
-                    conditions
-                ).groupBy(tp.COMMON_PLACE_ID, tp.CONTENT_ID)
-                .orderBy(
-                        order
-                ).offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .stream().map(row ->
+                        tp.ADDR1.as("addr1"),
+                        tp.FIRST_IMAGE.as("first_image"),
+                        tp.MAPX.as("mapx"),
+                        tp.MAPY.as("mapy"),
+                        tp.CREATE_DATE.as("create_date"),
+                        DSL.field("location_earth", Object.class).as("location_earth")
+                ).from(tp)
+                .where(conditions)
+                .asTable("tp");
+
+
+        Table<Record3<Long, Integer, Long>> reviewAndRtp =
+                dslContext.select(
+                                rtp.TOUR_POST_ID.as("tp_id"),
+                                rv.RATING.as("rating"),
+                                rv.ID.as("rv_id")
+                        ).from(rv)
+                        .leftJoin(rtp).on(rtp.REVIEW_ID.eq(rv.ID)).asTable().as("rv");
+
+
+        List<TourPostDto> contents = dslContext.select(
+                            filteredTourPost.field("content_id", Long.class),
+                            filteredTourPost.field("common_place_id", Long.class),
+                            DSL.coalesce(DSL.avg(reviewAndRtp.field("rating", Double.class)), BigDecimal.ZERO).as("avg_rating"),
+                            DSL.count(reviewAndRtp.field("rv_id", Integer.class)).as("review_count"),
+                            filteredTourPost.field("title", String.class),
+                            filteredTourPost.field("addr1", String.class),
+                            filteredTourPost.field("first_image", String.class),
+                            filteredTourPost.field("mapx", Double.class),
+                            filteredTourPost.field("mapy", Double.class))
+                    .from(
+                            filteredTourPost
+                    )
+                    .leftJoin(
+                            reviewAndRtp
+                    ).on(filteredTourPost.field("content_id", Long.class).eq(reviewAndRtp.field("tp_id", Long.class)))
+                    .groupBy(
+                            filteredTourPost.field("content_id", Long.class),
+                            filteredTourPost.field("common_place_id", Long.class),
+                            filteredTourPost.field("title", String.class),
+                            filteredTourPost.field("addr1", String.class),
+                            filteredTourPost.field("first_image", String.class),
+                            filteredTourPost.field("mapx", Double.class),
+                            filteredTourPost.field("mapy", Double.class),
+                            filteredTourPost.field("create_date", LocalDateTime.class),
+                            filteredTourPost.field("location_earth", Object.class))
+                    .orderBy(orderList)
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize()).stream().map(row ->
                         TourPostDto.builder()
-                                .contentId(row.get("contentId", Long.class))
-                                .commonPlaceId(row.get("commonPlaceId", Long.class))
-                                .avgRating(row.get("avgRating", Double.class) != null
-                                        ? row.get("avgRating", Double.class)
+                                .contentId(row.get("content_id", Long.class))
+                                .commonPlaceId(row.get("common_place_id", Long.class))
+                                .avgRating(row.get("avg_rating", Double.class) != null
+                                        ? row.get("avg_rating", Double.class)
                                         : 0.0)
-                                .reviewCount(row.get("reviewCount", Long.class))
+                                .reviewCount(row.get("review_count", Long.class))
                                 .title(row.get("title", String.class))
                                 .addr1(row.get("addr1", String.class))
-                                .firstImage(row.get("firstImage", String.class))
-                                .mapX(row.get("mapX", Double.class))
-                                .mapY(row.get("mapY", Double.class))
+                                .firstImage(row.get("first_image", String.class))
+                                .mapX(row.get("mapx", Double.class))
+                                .mapY(row.get("mapy", Double.class))
                                 .build()
-                        ).toList();
-
+                ).toList();
 
 
         Long count = dslContext.select(DSL.count(tp))
