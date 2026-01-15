@@ -41,6 +41,19 @@ public class TourPostDocService {
                     .field("location")
                     .distanceType(GeoDistanceType.Arc)
                     .location(loc -> loc.latlon(l->l.lat(mapY).lon(mapX)))));
+            if(sort != null && sort==TourPostSort.DISTANCE){
+                GeoDistanceSort geoDistanceSort =
+                        GeoDistanceSort.of(ds -> ds
+                                .field("location")
+                                .location(loc -> loc.latlon(l -> l.lat(mapY).lon(mapX)))
+                                .unit(DistanceUnit.Kilometers)
+                                .order(SortOrder.Asc)
+
+                        );
+
+                SortOptions result = SortOptions.of(so -> so.geoDistance(geoDistanceSort));
+                sortOptions.add(result);
+            }
         }
 
         sortOptions.add(SortOptions.of(so->so.field(f->f.field("_score").order(SortOrder.Desc))));
@@ -49,19 +62,6 @@ public class TourPostDocService {
         if(sort != null){
             switch (sort){
                 case REVIEW_COUNT -> sortOptions.add(SortOptions.of(so->so.field(f->f.field("review_count").order(SortOrder.Desc))));
-                case DISTANCE -> {
-                    GeoDistanceSort geoDistanceSort =
-                            GeoDistanceSort.of(ds -> ds
-                                    .field("location")
-                                    .location(loc -> loc.latlon(l -> l.lat(mapY).lon(mapX)))
-                                    .unit(DistanceUnit.Kilometers)
-                                    .order(SortOrder.Asc)
-
-                            );
-
-                    SortOptions result = SortOptions.of(so -> so.geoDistance(geoDistanceSort));
-                    sortOptions.add(result);
-                }
                 case RATING_AVERAGE -> sortOptions.add(SortOptions.of(so->so.field(f->f.field("rating_average").order(SortOrder.Desc))));
             }
         }
