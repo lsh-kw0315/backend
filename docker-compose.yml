@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:latest
+    build: .
     container_name: my-postgres
     environment:
       POSTGRES_USER: postgres
@@ -23,7 +23,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: my-rabbitmq
-    restart: always
+    #restart: always
     ports:
       - "5672:5672"  # AMQP 포트
       - "15672:15672"  # 관리 UI 포트
@@ -42,7 +42,7 @@ services:
   mongo:
     image: mongo:latest
     container_name: my-mongo
-    restart: always
+    #restart: always
     ports:
       - "27017:27017"
     environment:

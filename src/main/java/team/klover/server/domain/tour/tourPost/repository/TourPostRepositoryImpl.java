@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.scheduling.annotation.Async;
 import team.klover.server.domain.member.v1.enums.Country;
 import team.klover.server.domain.tour.enums.Area;
 import team.klover.server.domain.tour.enums.ContentType;
@@ -41,6 +42,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.jooq.impl.DSL.condition;
 
 @RequiredArgsConstructor
 public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
@@ -111,19 +114,21 @@ public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
         ReviewTourPost rtp = ReviewTourPost.REVIEW_TOUR_POST.as("rtp");
 
         List<OrderField<?>> orderList = new ArrayList<>();
-        switch (sort){
-            case RATING_AVERAGE -> {
-                orderList.add(DSL.field("avg_rating", SQLDataType.DOUBLE).desc());
-            }
-            case REVIEW_COUNT -> {
-                orderList.add(DSL.field("review_count", SQLDataType.BIGINT).desc());
-            }
-            case DISTANCE -> {
-                if(mapX != null && mapY != null) {
-                    orderList.add(DSL.field(
-                            "CAST(ST_SetSRID(ST_MakePoint({0}, {1}), 4326) AS geography) <-> location_earth",
-                            mapX, mapY
-                    ).asc());
+        if(sort!=null) {
+            switch (sort) {
+                case RATING_AVERAGE -> {
+                    orderList.add(DSL.field("avg_rating", SQLDataType.DOUBLE).desc());
+                }
+                case REVIEW_COUNT -> {
+                    orderList.add(DSL.field("review_count", SQLDataType.BIGINT).desc());
+                }
+                case DISTANCE -> {
+                    if (mapX != null && mapY != null) {
+                        orderList.add(DSL.field(
+                                "CAST(ST_SetSRID(ST_MakePoint({0}, {1}), 4326) AS geography) <-> location_earth",
+                                mapX, mapY
+                        ).asc());
+                    }
                 }
             }
         }
@@ -134,11 +139,11 @@ public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
         conditions.add(tp.LANGUAGE.eq(language.name()));
         if (categories != null) conditions.add(tp.CAT3.in(categories));
         if (contentTypeCode != null) conditions.add(tp.CONTENT_TYPE_ID.eq(contentTypeCode));
-        if (searchByTitle) conditions.add(tp.TITLE.containsIgnoreCase(keyword));
-        if (searchByOverview) conditions.add(tp.OVERVIEW.containsIgnoreCase(keyword));
+        if (searchByTitle) conditions.add(condition("{0} &@~ {1}",tp.TITLE, keyword));
+        if (searchByOverview) conditions.add(condition("{0} &@~ {1}",tp.OVERVIEW, keyword));
         if (areaCode != null) conditions.add(tp.AREA_CODE.eq(areaCode));
         if (mapX != null && mapY != null)
-            conditions.add(DSL.condition("ST_DWithin(ST_SetSRID(ST_MakePoint({0}, {1}), 4326)::geography, tp.location_earth, 5000)", mapX, mapY));
+            conditions.add(condition("ST_DWithin(ST_SetSRID(ST_MakePoint({0}, {1}), 4326)::geography, tp.location_earth, 5000)", mapX, mapY));
 
         Table<Record9<Long, Long, String, String, String, Double, Double, LocalDateTime, Object>> filteredTourPost =
                  dslContext.select(
@@ -327,7 +332,7 @@ public class TourPostRepositoryImpl implements TourPostRepositoryCustom {
                     .fetchJoin()
                     .where(
                             tourPost.language.eq(language.name()),
-                            categories != null ? tourPost.cat3.in(categories) : null,
+                            categories != null ? tourPost.cat3.in(categories) : null,joo
                             contentTypeCode != null ? tourPost.contentTypeId.eq(contentTypeCode) : null,
                             areaCode != null ? tourPost.areaCode.eq(areaCode) : null,
                             searchByTitle ? tourPost.title.containsIgnoreCase(keyword) : null,

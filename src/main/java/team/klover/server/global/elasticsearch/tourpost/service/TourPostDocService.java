@@ -36,35 +36,35 @@ public class TourPostDocService {
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
         List<SortOptions> sortOptions = new ArrayList<>();
 
-        sortOptions.add(SortOptions.of(so->so.field(f->f.field("_score").order(SortOrder.Desc))));
-
-        if(sort!=null && sort.equals(TourPostSort.REVIEW_COUNT)){
-            sortOptions.add(SortOptions.of(so->so.field(f->f.field("review_count").order(SortOrder.Desc))));
-        }
-
-        if(sort!=null && sort.equals(TourPostSort.DISTANCE)){
+        if(mapX != null && mapY != null){
             boolQueryBuilder.filter(f->f.geoDistance(gd -> gd.distance(RADIUS+"km")
                     .field("location")
                     .distanceType(GeoDistanceType.Arc)
                     .location(loc -> loc.latlon(l->l.lat(mapY).lon(mapX)))));
-
-            GeoDistanceSort geoDistanceSort =
-                    GeoDistanceSort.of(ds -> ds
-                            .field("location")
-                            .location(loc -> loc.latlon(l->l.lat(mapY).lon(mapX)))
-                            .unit(DistanceUnit.Kilometers)
-                            .order(SortOrder.Asc)
-
-                    );
-
-            SortOptions result = SortOptions.of(so->so.geoDistance(geoDistanceSort));
-            sortOptions.add(result);
         }
 
-        if(sort!=null && sort.equals(TourPostSort.RATING_AVERAGE)){
-            sortOptions.add(SortOptions.of(so->so.field(f->f.field("rating_average").order(SortOrder.Desc))));
-        }
+        sortOptions.add(SortOptions.of(so->so.field(f->f.field("_score").order(SortOrder.Desc))));
 
+
+        if(sort != null){
+            switch (sort){
+                case REVIEW_COUNT -> sortOptions.add(SortOptions.of(so->so.field(f->f.field("review_count").order(SortOrder.Desc))));
+                case DISTANCE -> {
+                    GeoDistanceSort geoDistanceSort =
+                            GeoDistanceSort.of(ds -> ds
+                                    .field("location")
+                                    .location(loc -> loc.latlon(l -> l.lat(mapY).lon(mapX)))
+                                    .unit(DistanceUnit.Kilometers)
+                                    .order(SortOrder.Asc)
+
+                            );
+
+                    SortOptions result = SortOptions.of(so -> so.geoDistance(geoDistanceSort));
+                    sortOptions.add(result);
+                }
+                case RATING_AVERAGE -> sortOptions.add(SortOptions.of(so->so.field(f->f.field("rating_average").order(SortOrder.Desc))));
+            }
+        }
 
         if(searchByTitle){
             boolQueryBuilder.should(s -> s.matchPhrase(mp -> mp.field("title").query(keyword).boost(30f)));
@@ -177,7 +177,7 @@ public class TourPostDocService {
                         .minScore(minScore)
         );
 
-        System.out.println("My Query:"+searchRequest.toString());
+        //System.out.println("My Query:"+searchRequest.toString());
 
         SearchResponse<TourPostDoc> response = client.search(searchRequest,TourPostDoc.class);
 

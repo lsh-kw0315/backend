@@ -1,5 +1,7 @@
 package team.klover.server.domain.community.commPost.repository;
 
+import com.jooq.project.generated.tables.*;
+import com.jooq.project.generated.tables.Comment;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -8,11 +10,15 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.jooq.DSLContext;
+import org.jooq.*;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
+import org.springframework.core.ResolvableType;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import team.klover.server.domain.community.commPost.entity.CommPost;
+import team.klover.server.domain.community.commPost.dto.res.CommPostDto;
 import team.klover.server.domain.community.commPost.entity.QCommPost;
 import team.klover.server.domain.community.commPost.entity.QCommPostLike;
 import team.klover.server.domain.community.commPost.enums.CommPostSort;
@@ -20,9 +26,18 @@ import team.klover.server.domain.community.comment.entity.QComment;
 import team.klover.server.domain.member.v1.entity.QMember;
 import team.klover.server.domain.member.v1.enums.Country;
 import team.klover.server.domain.tour.tourPost.dto.res.TourPostDto;
+import team.klover.server.global.common.constant.SearchConstant;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static org.jooq.impl.DSL.condition;
+import static org.jooq.impl.DSL.key;
 import static team.klover.server.domain.community.commPost.enums.CommPostSort.COMMENT_COUNT;
 import static team.klover.server.domain.community.commPost.enums.CommPostSort.LIKE_COUNT;
 
@@ -33,10 +48,11 @@ public class CommPostRepositoryImpl implements CommPostRepositoryCustom {
     private final DSLContext dslContext;
 
     @Override
-    public Page<CommPost> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort) {
+    public Page<CommPostDto> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort) {
 
 
         /*
+
         QCommPost commPost = QCommPost.commPost;
         QCommPostLike commPostLike = QCommPostLike.commPostLike;
         QComment comment = QComment.comment;
@@ -151,13 +167,127 @@ public class CommPostRepositoryImpl implements CommPostRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-        return PageableExecutionUtils.getPage(
+         return PageableExecutionUtils.getPage(
                 pageContent, pageable, count::fetchOne
         );
 
+
          */
 
-        return null;
+
+
+
+        CommPost cp = CommPost.COMM_POST.as("cp");
+        CommPostLike cpl = CommPostLike.COMM_POST_LIKE.as("cpl");
+        Comment c = Comment.COMMENT.as("c");
+        Members m = Members.MEMBERS.as("m");
+
+
+        List<OrderField<?>> orderList = new ArrayList<>();
+        if(sort!=null){
+            switch (sort){
+                case  COMMENT_COUNT-> {
+                    orderList.add(DSL.field("comment_count", SQLDataType.BIGINT).desc());
+                }
+                case LIKE_COUNT -> {
+                    orderList.add(DSL.field("like_count", SQLDataType.BIGINT).desc());
+                }
+                case DISTANCE -> {
+                    if(mapX != null && mapY != null) {
+                        orderList.add(DSL.field(
+                                "CAST(ST_SetSRID(ST_MakePoint({0}, {1}), 4326) AS geography) <-> location_earth",
+                                mapX, mapY
+                        ).asc());
+                    }
+                }
+            }
+        }
+        orderList.add(cp.ID.desc());
+        orderList.add(cp.CREATE_DATE.desc());
+
+        List<Condition> conditions = new ArrayList<>();
+        conditions.add(cp.LANGUAGE.eq(language.name()));
+        if (searchByContent) conditions.add(condition("{0} &@~ {1}",cp.CONTENT, keyword));
+        if (searchByNickname) conditions.add(DSL.field("nickname").likeIgnoreCase(keyword));
+        if (mapX != null && mapY != null)
+            conditions.add(condition("ST_DWithin(ST_SetSRID(ST_MakePoint({0}, {1}), 4326)::geography, cp.location_earth, 5000)", mapX, mapY));
+
+        Table<Record8<Long, Long,String, Double, Double, LocalDateTime, JSONB, Object>> filteredCommPost =
+                dslContext.select(
+                                cp.ID.as("id"),
+                                cp.MEMBER_ID.as("member_id"),
+                                cp.CONTENT.as("content"),
+                                cp.MAPX.as("mapx"),
+                                cp.MAPY.as("mapy"),
+                                cp.CREATE_DATE.as("create_date"),
+                                cp.IMAGE_URLS.as("image_urls"),
+                                DSL.field("location_earth", Object.class).as("location_earth")
+                        ).from(cp)
+                        .where(conditions)
+                        .asTable("cp");
+
+
+        List<CommPostDto> contents = dslContext.select(
+                        filteredCommPost.field("id", Long.class),
+                        filteredCommPost.field("content", String.class),
+                        filteredCommPost.field("member_id", Long.class),
+                        DSL.count(cpl.ID).as("like_count"),
+                        DSL.count(c.ID).as("comment_count"),
+                        filteredCommPost.field("mapx", Double.class),
+                        filteredCommPost.field("mapy", Double.class),
+                        m.NICKNAME.as("member_nickname"),
+                        filteredCommPost.field("create_date", LocalDateTime.class),
+                        filteredCommPost.field("image_urls", JSONB.class)
+                ).from(
+                        filteredCommPost
+                )
+                .leftJoin(
+                        cpl
+                ).on(filteredCommPost.field("id", Long.class).eq(cpl.COMM_POST_ID))
+                .leftJoin(
+                        c
+                ).on(filteredCommPost.field("id", Long.class).eq(c.COMM_POST_ID))
+                .leftJoin(
+                        m
+                ).on(filteredCommPost.field("member_id", Long.class).eq(m.ID))
+
+                .groupBy(
+                        filteredCommPost.field("id", Long.class),
+                        filteredCommPost.field("content", Long.class),
+                        filteredCommPost.field("member_id", Long.class),
+                        filteredCommPost.field("mapx", Double.class),
+                        filteredCommPost.field("mapy", Double.class),
+                        m.NICKNAME.as("member_nickname"),
+                        filteredCommPost.field("create_date", LocalDateTime.class),
+                        filteredCommPost.field("image_urls", JSONB.class))
+                .orderBy(orderList)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()).stream().map(row ->
+                        new CommPostDto(row.get("id", Long.class)
+                                ,row.get("member_id", Long.class)
+                                ,row.get("member_nickname", String.class)
+                                ,row.get("mapx", Double.class)
+                                ,row.get("mapy", Double.class)
+                                ,row.get("image_urls", String.class)
+                                ,row.get("create_date", LocalDateTime.class))
+                ).toList();
+
+
+        Long count = dslContext.select(DSL.count(cp))
+                .from(cp)
+                .leftJoin(m).on(cp.MEMBER_ID.eq(m.ID))
+                .leftJoin(c).on(cp.ID.eq(c.COMM_POST_ID))
+                .where(
+                        conditions
+                ).fetchOne(0,Long.class);
+
+        return new PageImpl<>(
+                contents, pageable, count != null ? count : 0
+        );
+
+
+
+        //return null;
     }
 
 

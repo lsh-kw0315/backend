@@ -8,5 +8,5 @@ import team.klover.server.domain.community.commPost.enums.CommPostSort;
 import team.klover.server.domain.member.v1.enums.Country;
 
 public interface CommPostRepositoryCustom {
-    Page<CommPost> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort);
+    Page<CommPostDto> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort);
 }

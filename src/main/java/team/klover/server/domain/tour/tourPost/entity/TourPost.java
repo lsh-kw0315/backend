@@ -42,8 +42,7 @@ public class TourPost {
     private String cat2;
     private String cat3;
 
-    @Column(length = 3000)
-    @Size(max = 3000)
+    @Column(columnDefinition = "TEXT")
     private String overview;
 
     private String cpyrhtDivCd;

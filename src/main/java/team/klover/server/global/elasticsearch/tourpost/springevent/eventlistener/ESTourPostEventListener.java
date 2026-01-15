@@ -16,6 +16,7 @@ import team.klover.server.global.redis.RedisService;
 public class ESTourPostEventListener {
     private final RedisService redisService;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleReviewCount(TourPostCountEvent event){
         redisService.saveTourPostCountMessage(new TourPostCountMessage(event.getTourPost()));

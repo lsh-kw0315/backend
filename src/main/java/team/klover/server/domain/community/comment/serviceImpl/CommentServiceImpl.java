@@ -8,7 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.klover.server.domain.community.commPost.dto.res.CommPostDto;
 import team.klover.server.domain.community.commPost.entity.CommPost;
+import team.klover.server.domain.community.commPost.enums.CommPostSort;
 import team.klover.server.domain.community.commPost.repository.CommPostRepository;
 import team.klover.server.domain.community.comment.dto.req.CommentForm;
 import team.klover.server.domain.community.comment.dto.res.CommentDto;
@@ -21,6 +23,7 @@ import team.klover.server.domain.community.comment.repository.CommentLikeReposit
 import team.klover.server.domain.community.comment.repository.CommentRepository;
 import team.klover.server.domain.community.comment.service.CommentService;
 import team.klover.server.domain.member.v1.entity.Member;
+import team.klover.server.domain.member.v1.enums.Country;
 import team.klover.server.domain.member.v1.repository.MemberV1Repository;
 import team.klover.server.global.elasticsearch.commpost.springevent.event.CommPostCountEvent;
 import team.klover.server.global.exception.KloverRequestException;

@@ -113,13 +113,13 @@ public class JwtTokenProvider {
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        log.info("Authorization Header: {}", bearerToken);
+        //log.info("Authorization Header: {}", bearerToken);
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
             String token = bearerToken.substring(BEARER_PREFIX.length());
             log.info("Extracted JWT: {}", token);
             return token;
         } else {
-            log.warn("Authorization 헤더가 없거나, Bearer 스키마로 시작하지 않습니다.");
+            //log.warn("Authorization 헤더가 없거나, Bearer 스키마로 시작하지 않습니다.");
             return null;
         }
     }

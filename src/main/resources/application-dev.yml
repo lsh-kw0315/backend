@@ -8,10 +8,10 @@ spring:
     database: postgresql
     hibernate:
       ddl-auto: update
-    show-sql: true      # SQL 쿼리 로깅 (개발 중에만 true)
-    properties:
-      hibernate:
-        format_sql: true
+#    show-sql: true      # SQL 쿼리 로깅 (개발 중에만 true)
+#    properties:
+#      hibernate:
+#        format_sql: true
     #database-platform: org.hibernate.dialect.PostgreSQLDialect
     database-platform: org.hibernate.spatial.dialect.postgis.PostgisPG95Dialect
   jooq:
@@ -57,13 +57,13 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
 
-logging:
-  level:
-    org.springframework.web: DEBUG
-    team.klover: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    org.jooq.tools.LoggerListener: DEBUG
+#logging:
+#  level:
+#    org.springframework.web: DEBUG
+#    team.klover: DEBUG
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql: TRACE
+#    org.jooq.tools.LoggerListener: DEBUG
 
 es:
   host: "localhost"

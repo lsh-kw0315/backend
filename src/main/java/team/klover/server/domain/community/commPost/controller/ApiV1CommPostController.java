@@ -205,7 +205,7 @@ public class ApiV1CommPostController {
         return ApiResponse.of(kloverPage);
     }
 
-    //http://localhost:8080/api/v1/comm-post/search
+    //http://localhost:8080/api/v1/comm-post/searchQueryDsl
     @GetMapping("/searchQueryDsl")
     @Operation(summary = "게시글 검색(쿼리DSL)")
     public ApiResponse<CommPostDto> searchQueryDsl(@RequestParam(value = "page",defaultValue = "0") int page,

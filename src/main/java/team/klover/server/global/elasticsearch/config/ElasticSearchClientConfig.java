@@ -35,7 +35,8 @@ public class ElasticSearchClientConfig {
 
 
         // 1. RestClient 생성 (Elasticsearch 8.x에서 HTTP 요청을 보내는 클라이언트)
-        RestClient restClient = RestClient.builder(new HttpHost(host, 9200, "http")).build();
+        RestClient restClient = RestClient.builder(new HttpHost(host, 9200, "http"))
+                .setHttpClientConfigCallback(httpAsyncClientBuilder -> httpAsyncClientBuilder.setMaxConnTotal(100).setMaxConnPerRoute(100)).build();
 
         // 2. ElasticsearchTransport 생성 (Jackson JSON Mapper 사용)
         ElasticsearchTransport transport = new RestClientTransport(restClient, jsonpMapper);

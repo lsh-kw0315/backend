@@ -36,8 +36,7 @@ public class CommPost extends BaseEntity {
     private List<CommPostSave> savedMembers = new ArrayList<>();
 
 
-    @Column(length = 3000)
-    @Size(max = 3000)
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private Double mapX;

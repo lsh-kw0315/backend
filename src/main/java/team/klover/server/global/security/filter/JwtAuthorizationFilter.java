@@ -61,7 +61,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // 인증이 필요 없는 URL 리스트
         boolean isPublicApi = (path.startsWith("/api/v1/comm-post") && method.equals("GET")) || (path.startsWith("/api/v1/tour-post") && method.equals("GET"));
         if (!isPublicApi && !StringUtils.hasText(token)) {
-            log.warn("JWT 토큰이 없습니다.");
+            //log.warn("JWT 토큰이 없습니다.");
 
             SecurityContextHolder.clearContext();
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -76,7 +76,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             jwtTokenProvider.decodeToken(token);
             decodingSuccess = true;
         } catch (Exception jwtException){
-            log.warn("유효하지 않은 Access Token 토큰입니다.");
+            //log.warn("유효하지 않은 Access Token 토큰입니다.");
 
             if(!isPublicApi) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

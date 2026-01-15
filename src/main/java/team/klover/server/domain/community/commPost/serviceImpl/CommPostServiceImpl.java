@@ -329,15 +329,13 @@ public class CommPostServiceImpl implements CommPostService {
 
     // CommPost를 CommPostDto로 변환
     private CommPostDto convertToCommPostDto(CommPost commPost) {
-        return CommPostDto.builder()
-                .id(commPost.getId())
-                .memberId(commPost.getMember().getId())
-                .nickname(commPost.getMember().getNickname())
-                .mapX(commPost.getMapX())
-                .mapY(commPost.getMapY())
-                .imageUrls(commPost.getImageUrls())
-                .createDate(commPost.getCreateDate())
-                .build();
+        return new CommPostDto(commPost.getId()
+                ,commPost.getMember().getId()
+                ,commPost.getMember().getNickname()
+                ,commPost.getMapX()
+                ,commPost.getMapY()
+                ,commPost.getImageUrls()
+                ,commPost.getCreateDate());
     }
 
     // CommPost를 DetailCommPostDto로 변환
@@ -365,7 +363,6 @@ public class CommPostServiceImpl implements CommPostService {
 
     public Page<CommPostDto> search(String keyword, Pageable pageable, Double mapX, Double mapY, Country language, boolean searchByContent, boolean searchByNickname, CommPostSort sort){
         checkPageSize(pageable.getPageSize());
-        return commPostRepository.search(keyword, pageable, mapX, mapY, language, searchByContent, searchByNickname, sort)
-                .map(this::convertToCommPostDto);
+        return commPostRepository.search(keyword, pageable, mapX, mapY, language, searchByContent, searchByNickname, sort);
     }
 }

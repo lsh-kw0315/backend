@@ -142,7 +142,7 @@ public class ApiV1TourPostController {
                                               @RequestParam(value = "traditional", defaultValue = "false") boolean hasTraditional,
                                               @RequestParam(value = "mapX", required = false) Double mapX,
                                               @RequestParam(value = "mapY", required = false) Double mapY){
-        System.out.println("메서드에 진입");
+       // System.out.println("메서드에 진입");
         if(page<0 || size<=0) {
             throw new KloverRequestException(ReturnCode.WRONG_PARAMETER);
         }

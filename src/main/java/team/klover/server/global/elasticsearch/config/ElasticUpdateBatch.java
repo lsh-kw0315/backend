@@ -8,6 +8,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import team.klover.server.domain.community.commPost.repository.CommPostLikeRepository;
@@ -36,6 +37,7 @@ public class ElasticUpdateBatch {
 
     @SneakyThrows
     @Scheduled(fixedRate = 30*1000)
+    @Async
     public void bulkUpdate(){
 
         Map<Long, Object> commPostDeletionTarget = redisService.getALLCommPostDeletion();

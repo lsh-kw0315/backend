@@ -19,22 +19,26 @@ import team.klover.server.global.redis.RedisService;
 public class ESCommPostEventListener {
     private final RedisService redisService;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT) //커밋이 되었다 = 실제로 DB에 반영이 되었다. 이 때만 정합성을 반영해야함.
     public void handleCommPostDeletion(CommPostDeleteEvent event){
         redisService.saveCommPostDeletionMessage(new CommPostDeletionMessage(event.getCommPost()));
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCommPostModification(CommPostUpdateEvent event){
         redisService.saveCommPostModificationMessage(new CommPostModificationMessage(event.getCommPost()));
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCommPostCount(CommPostCountEvent event){
         redisService.saveCommPostCountMessage(new CommPostCountMessage(event.getCommPost()));
     }
 
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNicknameModification(NicknameUpdateEvent event){
         redisService.saveNicknameModificationMessage(new NicknameModificationMessage(event.getMember()));
